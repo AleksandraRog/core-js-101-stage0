@@ -26,8 +26,10 @@
  *  21 => 'Fizz'
  *
  */
-function getFizzBuzz(/* num */) {
-  throw new Error('Not implemented');
+function getFizzBuzz(num) {
+  const b = num % 5 === 0 ? 'Buzz' : '';
+  const f = num % 3 === 0 ? 'Fizz' : '';
+  return (f + b).length < 1 ? num : f + b;
 }
 
 /**
@@ -41,8 +43,11 @@ function getFizzBuzz(/* num */) {
  *   5  => 120
  *   10 => 3628800
  */
-function getFactorial(/* n */) {
-  throw new Error('Not implemented');
+function getFactorial(n) {
+  return Array.from({ length: n }, (_, i) => i + 1).reduce(
+    (fact, val) => fact * val,
+    1
+  );
 }
 
 /**
@@ -57,8 +62,11 @@ function getFactorial(/* n */) {
  *   5,10  =>  45 ( = 5+6+7+8+9+10 )
  *   -1,1  =>  0  ( = -1 + 0 + 1 )
  */
-function getSumBetweenNumbers(/* n1, n2 */) {
-  throw new Error('Not implemented');
+function getSumBetweenNumbers(n1, n2) {
+  return Array.from({ length: n2 - n1 + 1 }, (_, i) => i + n1).reduce(
+    (sum, val) => sum + val,
+    0
+  );
 }
 
 /**
@@ -112,8 +120,13 @@ function isTriangle(/* a, b, c */) {
  *   { top:20, left:20, width: 20, height: 20 }    =>  false
  *
  */
-function doRectanglesOverlap(/* rect1, rect2 */) {
-  throw new Error('Not implemented');
+function doRectanglesOverlap(rect1, rect2) {
+  return !(
+    rect2.left > rect1.width + rect1.left ||
+    rect2.left + rect2.width < rect1.left ||
+    rect2.top > rect1.height + rect1.top ||
+    rect2.top + rect2.height < rect1.top
+  );
 }
 
 /**
@@ -322,8 +335,24 @@ function toNaryString(/* num, n */) {
  *   ['/web/assets/style.css', '/.bin/mocha',  '/read.me'] => '/'
  *   ['/web/favicon.ico', '/web-scripts/dump', '/verbalizer/logs'] => '/'
  */
-function getCommonDirectoryPath(/* pathes */) {
-  throw new Error('Not implemented');
+function getCommonDirectoryPath(pathes) {
+  const m2 = pathes
+    .map((val) => val.split('/'))
+    .sort((a, b) => b.length - a.length);
+
+  const str = [...Array(m2[0].length)].map(() => []);
+
+  m2[0].forEach((val, i) => {
+    m2.forEach((value) => {
+      str[i] = val === value[i] ? [value[i]] : [];
+    });
+  });
+  return str
+    .filter(
+      (current, i, array) =>
+        current.length !== 0 || i === 0 || array[i - 1].length !== 0
+    )
+    .join('/');
 }
 
 /**
@@ -344,8 +373,19 @@ function getCommonDirectoryPath(/* pathes */) {
  *                         [ 6 ]]
  *
  */
-function getMatrixProduct(/* m1, m2 */) {
-  throw new Error('Not implemented');
+function getMatrixProduct(m1, m2) {
+  const matrixProduct = (mx1, mx2) =>
+    Array.from({ length: mx1.length }, (_, k) =>
+      Array.from({ length: mx2[0].length }, (__, i) =>
+        mx1[k].reduce((sum, value, index) => sum + value * mx2[index][i], 0)
+      )
+    );
+
+  return Array.isArray(m1[0]) &&
+    Array.isArray(m2[0]) &&
+    m1[0].length === m2.length
+    ? matrixProduct(m1, m2)
+    : undefined;
 }
 
 /**
@@ -378,8 +418,57 @@ function getMatrixProduct(/* m1, m2 */) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  const validate = ([a, b, c]) => (b === a && b === c ? b : undefined);
+
+  const winLines = position.reduce((acc, _, i) => {
+    acc.push([
+      [i, 0],
+      [i, 1],
+      [i, 2],
+    ]);
+    acc.push([
+      [0, i],
+      [1, i],
+      [2, i],
+    ]);
+    if (i === 0) {
+      acc.push([
+        [i, i],
+        [1, 1],
+        [2, 2],
+      ]);
+      acc.push([
+        [i, 2],
+        [1, 1],
+        [2, i],
+      ]);
+    }
+    return acc;
+  }, []);
+
+  const controlPositions = [
+    [1, 1],
+    [0, 0],
+    [2, 2],
+  ];
+
+  for (let i = 0; i < controlPositions.length; i += 1) {
+    const pos = controlPositions[i];
+    if (position[pos[0]][pos[1]] !== undefined) {
+      const filteredWinLines = winLines.filter((val) =>
+        val.some(([x, y]) => x === pos[0] && y === pos[1])
+      );
+      for (let j = 0; j < filteredWinLines.length; j += 1) {
+        const [a, b, c] = filteredWinLines[j];
+        const valLine = [a, b, c].map((val) => position[val[0]][val[1]]);
+        const winner = validate(valLine);
+        if (winner) return winner;
+      }
+    }
+  }
+
+  return undefined;
 }
 
 module.exports = {
